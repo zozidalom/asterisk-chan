@@ -19,14 +19,14 @@ RUN make -j"$(nproc)" && make install && ldconfig
 # ---------- runtime ----------
 FROM debian:bookworm-slim
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  libxml2 libncursesw6 libcurl4 \
   libjansson4 libsqlite3-0 libedit2 libssl3 libbluetooth3 tzdata ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
-# binaries + modules + asterisk’s shared libs
 COPY --from=build /usr/sbin/asterisk /usr/sbin/
 COPY --from=build /usr/lib/asterisk /usr/lib/asterisk
 COPY --from=build /usr/lib/libasterisk* /usr/lib/
-
 RUN ldconfig
 
-CMD ["/usr/sbin/asterisk","-f","-U","root","-G","root"]
+ENTRYPOINT ["/usr/sbin/asterisk"]
+CMD ["-f","-U","root","-G","root"]
